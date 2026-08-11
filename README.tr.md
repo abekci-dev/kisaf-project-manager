@@ -13,9 +13,6 @@ Tek dosya · sıfır bağımlılık · ~9 MB · kurulum gerektirmez
 
 </div>
 
-> **kisaf** = *keep it simple as fuck*. Programın adı ve sloganı özel ad
-> olduğu için hiçbir dile çevrilmiyor.
-
 ---
 
 ## Ne işe yarar
