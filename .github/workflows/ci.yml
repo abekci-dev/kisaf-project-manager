@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test & vet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files are not gofmt-ed:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - run: go vet ./...
+      - run: go test -race ./...
+
+  build:
+    name: Build (${{ matrix.goos }}/${{ matrix.goarch }})
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - { goos: windows, goarch: amd64 }
+          - { goos: windows, goarch: arm64 }
+          - { goos: linux,   goarch: amd64 }
+          - { goos: linux,   goarch: arm64 }
+          - { goos: darwin,  goarch: arm64 }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: '0'
+        run: |
+          version="${GITHUB_REF_NAME}-${GITHUB_SHA::7}"
+          name="kisaf"
+          ldflags="-s -w -X main.version=${version}"
+
+          # GUI subsystem so no console window flashes up on Windows.
+          if [ "$GOOS" = "windows" ]; then
+            ldflags="${ldflags} -H=windowsgui"
+            name="kisaf.exe"
+          fi
+
+          mkdir -p dist
+          go build -trimpath -ldflags "${ldflags}" -o "dist/${name}" .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kisaf-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/
+          if-no-files-found: error

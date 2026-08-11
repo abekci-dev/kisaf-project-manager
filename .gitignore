@@ -1,0 +1,16 @@
+# Build output
+/kisaf
+/kisaf.exe
+/kisaf-console.exe
+/dist/
+*.exe~
+
+# Local runtime data (data.json, config.json, log)
+/.kisaf-data/
+*.log
+
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store

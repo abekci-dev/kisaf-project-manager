@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0f1115">
+<title>kisaf project manager</title>
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand" title="keep it simple as fuck project manager">
+    <img src="/icons/favicon-32.png" alt="" width="22" height="22">
+    <span>kisaf</span>
+  </div>
+
+  <div class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+    <input id="search" type="search" data-i18n-placeholder="search.placeholder"
+           autocomplete="off" spellcheck="false">
+    <kbd>/</kbd>
+  </div>
+
+  <div class="topbar-actions">
+    <button class="btn btn-primary" id="btn-add">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
+      <span data-i18n="action.addProject"></span>
+    </button>
+    <button class="btn" id="btn-scan">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6l2 2h8v11H4z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span data-i18n="action.scanFolder"></span>
+    </button>
+    <button class="btn btn-icon" id="btn-settings"
+            data-i18n-title="action.settings" data-i18n-aria-label="action.settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm8.9 4a7 7 0 01-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2l-.4 2.6h-4l-.4-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 013 12c0-.4 0-.8.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L7.9 3h4l.4 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.1.4.1.8.1 1.2z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════ List view ═══════════════ -->
+<section class="view" id="view-list">
+  <div class="toolbar">
+    <nav class="filters" id="filters">
+      <button class="chip is-active" data-filter="all" data-i18n="filter.all"></button>
+      <button class="chip" data-filter="favorite" data-i18n="filter.favorites"></button>
+      <button class="chip" data-filter="dirty" data-i18n="filter.dirty"></button>
+      <button class="chip" data-filter="todo" data-i18n="filter.openTasks"></button>
+      <button class="chip" data-filter="archived" data-i18n="filter.archived"></button>
+    </nav>
+
+    <div class="tagbar" id="tagbar" hidden></div>
+
+    <div class="toolbar-right">
+      <span class="count" id="result-count"></span>
+      <div class="segmented" id="view-toggle" role="group">
+        <button data-view="grid" data-i18n-title="view.grid" data-i18n-aria-label="view.grid">
+          <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+        </button>
+        <button data-view="list" data-i18n-title="view.list" data-i18n-aria-label="view.list">
+          <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards" id="project-list"></div>
+
+  <div class="empty" id="empty-state" hidden>
+    <img src="/icons/icon-192.png" alt="" width="72" height="72">
+    <h2 data-i18n="empty.title"></h2>
+    <p data-i18n-html="empty.body"></p>
+    <div class="empty-actions">
+      <button class="btn btn-primary" data-action="add" data-i18n="action.addProject"></button>
+      <button class="btn" data-action="scan" data-i18n="action.scanFolder"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ Detail view ═══════════════ -->
+<section class="view" id="view-detail" hidden></section>
+
+<!-- Add project -->
+<dialog id="dlg-add" class="dlg">
+  <form method="dialog" class="dlg-inner">
+    <header class="dlg-head">
+      <h2 data-i18n="add.title"></h2>
+      <button class="btn btn-icon" value="cancel" data-i18n-aria-label="action.close">✕</button>
+    </header>
+    <div class="dlg-body">
+      <div class="picker" data-picker="add">
+        <div class="picker-roots"></div>
+        <div class="picker-crumbs"></div>
+        <div class="picker-list"></div>
+        <label class="field">
+          <span data-i18n="add.selectedFolder"></span>
+          <input type="text" class="picker-path" data-i18n-placeholder="add.folderPlaceholder" spellcheck="false">
+        </label>
+      </div>
+      <div class="grid-2">
+        <label class="field">
+          <span><span data-i18n="add.name"></span> <em data-i18n="add.nameHint"></em></span>
+          <input type="text" id="add-name" spellcheck="false">
+        </label>
+        <label class="field">
+          <span><span data-i18n="add.tags"></span> <em data-i18n="add.tagsHint"></em></span>
+          <input type="text" id="add-tags" data-i18n-placeholder="add.tagsPlaceholder" spellcheck="false">
+        </label>
+      </div>
+      <label class="field">
+        <span data-i18n="add.description"></span>
+        <input type="text" id="add-desc" data-i18n-placeholder="overview.descriptionPlaceholder">
+      </label>
+      <p class="dlg-error" id="add-error" hidden></p>
+    </div>
+    <footer class="dlg-foot">
+      <button class="btn" value="cancel" data-i18n="action.cancel"></button>
+      <button class="btn btn-primary" id="add-submit" value="ok" data-i18n="action.add"></button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- Scan folder -->
+<dialog id="dlg-scan" class="dlg dlg-wide">
+  <form method="dialog" class="dlg-inner">
+    <header class="dlg-head">
+      <h2 data-i18n="scan.title"></h2>
+      <button class="btn btn-icon" value="cancel" data-i18n-aria-label="action.close">✕</button>
+    </header>
+    <div class="dlg-body">
+      <div class="picker" data-picker="scan">
+        <div class="picker-roots"></div>
+        <div class="picker-crumbs"></div>
+        <div class="picker-list"></div>
+        <label class="field">
+          <span data-i18n="scan.root"></span>
+          <input type="text" class="picker-path" data-i18n-placeholder="scan.rootPlaceholder" spellcheck="false">
+        </label>
+      </div>
+      <div class="scan-opts">
+        <label class="field field-inline">
+          <span data-i18n="scan.depth"></span>
+          <input type="number" id="scan-depth" min="1" max="8" value="3">
+        </label>
+        <label class="check">
+          <input type="checkbox" id="scan-nongit">
+          <span><span data-i18n="scan.includeNonGit"></span> <em data-i18n="scan.includeNonGitHint"></em></span>
+        </label>
+        <button class="btn btn-primary" id="scan-run" value="scan" data-i18n="scan.run"></button>
+      </div>
+      <div class="scan-results" id="scan-results"></div>
+    </div>
+    <footer class="dlg-foot">
+      <span class="dlg-foot-note" id="scan-note"></span>
+      <button class="btn" value="cancel" data-i18n="action.close"></button>
+      <button class="btn btn-primary" id="scan-import" value="import" disabled data-i18n="scan.import"></button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- Settings -->
+<dialog id="dlg-settings" class="dlg dlg-wide">
+  <form method="dialog" class="dlg-inner">
+    <header class="dlg-head">
+      <h2 data-i18n="settings.title"></h2>
+      <button class="btn btn-icon" value="cancel" data-i18n-aria-label="action.close">✕</button>
+    </header>
+    <div class="dlg-body" id="settings-body"></div>
+    <footer class="dlg-foot">
+      <button class="btn" value="cancel" data-i18n="action.cancel"></button>
+      <button class="btn btn-primary" id="settings-save" value="ok" data-i18n="action.save"></button>
+    </footer>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
